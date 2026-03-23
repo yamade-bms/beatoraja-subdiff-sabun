@@ -31,7 +31,10 @@ local function main()
   }
 
   if SUBDIFF_TABLE == nil then
-    SUBDIFF_TABLE = {}
+    SUBDIFF_TABLE = {
+      md5 = {},
+      sha256 = {},
+    }
     local chunk, err = loadfile("customize/subdiff/subdiff.lua")
     if chunk then
       SUBDIFF_TABLE = chunk()
