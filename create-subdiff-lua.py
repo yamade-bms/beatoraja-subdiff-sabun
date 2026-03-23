@@ -23,6 +23,7 @@ for bmt_filepath in glob.glob('../../table/*.bmt'):
 # ソート
 priority_list = [
     'Stella',
+    'Supernova',
     'Satellite',
     'Satellite Recommend',
     'Satellite (Voting)',
@@ -59,6 +60,8 @@ table_list = sorted(
 # 各難易度
 subdiff_data = {}
 
+key_map_md5 = {}
+key_map_sha256 = {}
 for bmt_filepath, _ in table_list:
     with gzip.GzipFile(bmt_filepath) as f:
         d = json.load(f, strict=False)
@@ -89,16 +92,38 @@ for bmt_filepath, _ in table_list:
 
             # print(subdiff_name)
             for d3 in d2['songs']:
-                if 'md5' in d3:
-                    key = ('md5', d3['md5'])
-                elif 'sha256' in d3:
-                    key = ('sha256', d3['sha256'])
-                else:
+                key = (d3.get('md5'), d3.get('sha256'))
+                if key == (None, None):
                     print(subdiff_name, d3)
                     raise Exception
 
+                if (key[0], None) in subdiff_data:
+                    key = (key[0], None)
+                elif (None, key[1]) in subdiff_data:
+                    key = (None, key[1])
+
+                if key[1] == None and key not in subdiff_data:
+                    matched_key = key_map_md5.get(key[0])
+                    if matched_key != None:
+                        subdiff_data[key] = subdiff_data.pop(matched_key)
+                        if matched_key[1] != None:
+                            key_map_sha256.pop(matched_key[1])
+                    key_map_md5[key[0]] = key
+                elif key[0] == None and key not in subdiff_data:
+                    matched_key = key_map_sha256.get(key[1])
+                    if matched_key != None:
+                        subdiff_data[key] = subdiff_data.pop(matched_key)
+                        key_map_sha256[matched_key[1]] = key
+                        if matched_key[0] != None:
+                            key_map_md5.pop(matched_key[0])
+                    key_map_sha256[key[1]] = key
+                elif key[0] != None and key[1] != None:
+                    key_map_md5[key[0]] = key
+                    key_map_sha256[key[1]] = key
+
                 if key not in subdiff_data:
                     subdiff_data[key] = []
+
                 subdiff_data[key].append(subdiff_name)
 
 # 削除
@@ -173,19 +198,26 @@ for key, value in subdiff_data.items():
                 value.pop(i)
                 break
 
+# ハッシュでソート
+
+
 # 結果
 md5_list = []
 sha256_list = []
 
 for key, value in subdiff_data.items():
     subdiff = '"' + ' / '.join(value) + '"'
-    t = f'["{key[1]}"] = {subdiff},'
-    if key[0] == 'md5':
+    if key[0] != None:
+        t = f'["{key[0]}"] = {subdiff},'
         md5_list.append(t)
-    elif key[0] == 'sha256':
+    elif key[1] != None:
+        t = f'["{key[1]}"] = {subdiff},'
         sha256_list.append(t)
     else:
         raise Exception
+
+md5_list.sort()
+sha256_list.sort()
 
 lua_list = []
 lua_list.append('return {')
