@@ -38,6 +38,7 @@ priority_list = [
     '腕ガチ難易度表',
     'Delay小学校難易度表',
     'ディレイjoy',
+    'Luminous',
     'LN難易度',
     '皿難易度表(3rd)',
     '≒slst推定難易度表（詳細）',
