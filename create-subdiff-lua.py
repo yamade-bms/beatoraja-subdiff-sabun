@@ -40,6 +40,7 @@ priority_list = [
     'ディレイjoy',
     'Luminous',
     'LN難易度',
+    'Scramble難易度表',
     '皿難易度表(3rd)',
     '≒slst推定難易度表（詳細）',
     'Stella Uploader',
