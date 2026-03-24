@@ -14,9 +14,13 @@ for bmt_filepath in glob.glob('../../table/*.bmt'):
         table_name = d['name']
         if  'おすすめ譜面表' in table_name or 'BMS Search' in table_name:
             continue
+        if  table_name == 'Stella Uploader 難易度表':
+            continue
         if  table_name == '≒slst推定難易度表':
             continue
         if  table_name == '≒slst推定難易度表（slstなし）':
+            continue
+        if  'とりあえず難易度表' in table_name:
             continue
         table_list.append((bmt_filepath, table_name))
 
@@ -69,6 +73,7 @@ for bmt_filepath, _ in table_list:
         d = json.load(f, strict=False)
 
         table_name = d['name']
+        print(table_name)
 
         for d2 in d['folder']:
             subdiff_name = d2['name'].strip()
